@@ -1,0 +1,69 @@
+{
+ "kind": "books#volumes",
+ "totalItems": 1,
+ "items": [
+  {
+   "kind": "books#volume",
+   "id": "5-M3mDX9PXYC",
+   "etag": "QELjuSjM8J0",
+   "selfLink": "https://www.googleapis.com/books/v1/volumes/5-M3mDX9PXYC",
+   "volumeInfo": {
+    "title": "City Water, City Life",
+    "subtitle": "Water and the Infrastructure of Ideas in Urbanizing Philadelphia, Boston, and Chicago",
+    "authors": [
+     "Carl Smith"
+    ],
+    "publisher": "University of Chicago Press",
+    "publishedDate": "2013-04-17",
+    "description": "A city is more than a massing of citizens, a layout of buildings and streets, or an arrangement of political, economic, and social institutions. It is also an infrastructure of ideas, an embodiment of the beliefs, values, and aspirations of the people who created it. In City Water, City Life, celebrated historian Carl Smith explores this infrastructure of ideas through an insightful examination of the development of the first successful waterworks systems in Philadelphia, Boston, and Chicago between the 1790s and the 1860s. In this period the United States began its rapid transformation from rural to urban. Through an analysis of a broad range of verbal and visual sources, Smith shows how the discussion, design, and use of waterworks reveal how Americans framed their conceptions of urban democracy and how they understood the natural and the built environment, individual health and the well-being of society, and the qualities of time and history. As citizens debated matters of thirst, finance, and health, they also negotiated abstract questions of secular and sacred, real and ideal, immanent and transcendent, practical and moral. By examining the place of water in the nineteenth-century consciousness, Smith illuminates how city dwellers perceived themselves during the great age of American urbanization. But City Water, City Life is more than a history of urbanization. It is also a refreshing meditation on water as a necessity, as a resource for commerce and industry, and as an essential—and central—part of how we define our civilization.",
+    "industryIdentifiers": [
+     {
+      "type": "ISBN_10",
+      "identifier": "022602251X"
+     },
+     {
+      "type": "ISBN_13",
+      "identifier": "9780226022512"
+     }
+    ],
+    "pageCount": 339,
+    "printType": "BOOK",
+    "categories": [
+     "History"
+    ],
+    "contentVersion": "0.1.0.0.preview.1",
+    "imageLinks": {
+     "smallThumbnail": "http://bks7.books.google.com/books?id=5-M3mDX9PXYC&printsec=frontcover&img=1&zoom=5&edge=curl&source=gbs_api",
+     "thumbnail": "http://bks7.books.google.com/books?id=5-M3mDX9PXYC&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api"
+    },
+    "language": "en",
+    "previewLink": "http://books.google.com/books?id=5-M3mDX9PXYC&printsec=frontcover&dq=isbn:9780226022512&hl=&cd=1&source=gbs_api",
+    "infoLink": "http://books.google.com/books?id=5-M3mDX9PXYC&dq=isbn:9780226022512&hl=&source=gbs_api",
+    "canonicalVolumeLink": "http://books.google.com/books/about/City_Water_City_Life.html?hl=&id=5-M3mDX9PXYC"
+   },
+   "saleInfo": {
+    "country": "US",
+    "saleability": "NOT_FOR_SALE",
+    "isEbook": false
+   },
+   "accessInfo": {
+    "country": "US",
+    "viewability": "PARTIAL",
+    "embeddable": true,
+    "publicDomain": false,
+    "textToSpeechPermission": "ALLOWED",
+    "epub": {
+     "isAvailable": false
+    },
+    "pdf": {
+     "isAvailable": false
+    },
+    "webReaderLink": "http://books.google.com/books/reader?id=5-M3mDX9PXYC&hl=&printsec=frontcover&output=reader&source=gbs_api",
+    "accessViewStatus": "SAMPLE"
+   },
+   "searchInfo": {
+    "textSnippet": "In City Water, City Life, celebrated historian Carl Smith explores this infrastructure of ideas through an insightful examination of the development of the first successful waterworks systems in Philadelphia, Boston, and Chicago between the ..."
+   }
+  }
+ ]
+}
