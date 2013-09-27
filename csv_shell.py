@@ -44,8 +44,11 @@ def main(argv):
 			  book("9780226702704"), book("9780226702704"), book("9780226702704"),
 			  book("9780226702681")]
 
+	processShelfList(shelf1)
+
+def processShelfList(shelfList):
 	# extract all books that were found in Google Books
-	found = [book for book in shelf1 if book.found == True]
+	found = [book for book in shelfList if book.found == True]
 
 	#find the longest increasing subsequence of the found books
 	LISS = shelf.LongestIncreasingSubsequence(found)
@@ -56,10 +59,10 @@ def main(argv):
 
 	# loop through the initial array of book objects and print if each book was found
 	# and if each book was is out of order
-	print "  SHEF READING REPORT"
+
 	print "------------------------------------------------"
 
-	for book in shelf1:
+	for book in shelfList:
 		marker = "  " #creates spaces for the left hand first column
 		foundLeft = "" #variable for marking books if they weren't found
 		foundRight = ""
@@ -75,9 +78,46 @@ def main(argv):
 			book.title = book.isbn13
 
 		print marker + foundLeft + book.simpleLastName + ": " + book.title + foundRight
+	
+	print "------------------------------------------------"
+	print "  SHEF READING REPORT"
+	print "      >>> " + str(len(OutOfOrder)) + " <<<"
+	print "  BOOKS OUT OF ORDER"
+
+def interactive():
+	shelfList = []
+	while True:
+		currentValue = raw_input('? ')
+		if currentValue == "<ENDSHELF>":
+			print "Reached End of shelf... processing"
+			processShelfList(shelfList)
+			break
+		elif currentValue == "<ENDCASE>":
+			print "Reached End of Case.. processing"
+			break
+		elif currentValue == "<DELPREV>":
+			try:
+				delb = shelfList.pop()
+				print "Deleting " + delb.title
+			except:
+				print "Cannot Delete!"
+		elif currentValue == "q":
+			break
+		else:
+			cb = shelf.book(currentValue)
+			print cb.title
+			shelfList.append(cb)
+
+
 
 if __name__ == "__main__":
-	if len(sys.argv) < 2:
+	if len(sys.argv) == 1:
+		print "Entering Interactive Mode"
+		interactive()
+	elif len(sys.argv) == 2 and sys.argv[1] == "demo":
+		print sys.argv
+		print "Internal Data Demo"
 		main([])
 	else:
+		print "CSV processing"
 		main(sys.argv[1:])
