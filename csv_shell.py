@@ -79,8 +79,8 @@ def processShelfList(shelfList):
 
 		print marker + foundLeft + book.simpleLastName + ": " + book.title + foundRight
 	
-	print "REPORT------------------------------------------"
-	print " " + str(len(OutOfOrder)) + "  books out of order (marked with an '*')"
+	print "-REPORT-----------------------------------------"
+	print "  " + str(len(OutOfOrder)) + "  books out of order (marked with an '*')"
 
 def interactive():
 	shelfList = []
