@@ -80,21 +80,21 @@ def processShelfList(shelfList):
 		print marker + foundLeft + book.simpleLastName + ": " + book.title + foundRight
 	
 	print "------------------------------------------------"
-	print "  SHEF READING REPORT"
+	print "  Shelf Reading Report"
 	print "      >>> " + str(len(OutOfOrder)) + " <<<"
-	print "  BOOKS OUT OF ORDER"
+	print "  Books out of order"
+	print " (out of order books are marked with an '*')"
 
 def interactive():
 	shelfList = []
 	while True:
-		currentValue = raw_input('? ')
+		currentValue = raw_input('ISBN> ')
 		if currentValue == "<ENDSHELF>":
 			print "Reached End of shelf... processing"
 			processShelfList(shelfList)
-			break
+			shelfList = []
 		elif currentValue == "<ENDCASE>":
 			print "Reached End of Case.. processing"
-			break
 		elif currentValue == "<DELPREV>":
 			try:
 				delb = shelfList.pop()
@@ -103,8 +103,16 @@ def interactive():
 				print "Cannot Delete!"
 		elif currentValue == "q":
 			break
+		elif currentValue == "l" or currentValue == "ls" or currentValue == "L" or currentValue == "LS":
+			print "Items Scanned for this Shelf"
+			print "----------------------------"
+			for book in shelfList:
+				print book.simpleLastName + ": " + book.title
+			print "----------------------------"
+			print "scan or type <ENDOFSHELF> for shelf reading report"
 		else:
-			cb = shelf.book(currentValue)
+			clean = currentValue.replace("-","")
+			cb = shelf.book(clean)
 			print cb.title
 			shelfList.append(cb)
 
@@ -112,7 +120,7 @@ def interactive():
 
 if __name__ == "__main__":
 	if len(sys.argv) == 1:
-		print "Entering Interactive Mode"
+		print "INTERACTIVE / begin scanning books; type q to quit"
 		interactive()
 	elif len(sys.argv) == 2 and sys.argv[1] == "demo":
 		print sys.argv

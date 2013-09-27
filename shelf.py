@@ -31,7 +31,7 @@ class book:
 		addOn = "&key=" #needed for GET request
 		jsonURL = baseURL + str(self.isbn13) + addOn + self.googleApiKey #build a URL string for searching
 
-		print "Looking up book " + str(self.isbn13) + "...", #log the search to the console
+		print "  Looking up book " + str(self.isbn13) + "...", #log the search to the console
 
 		googleBook = json.load(urllib2.urlopen(jsonURL)) #attempt to load JSON from Google Books using the URL built above
 
