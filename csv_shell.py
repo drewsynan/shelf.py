@@ -1,4 +1,4 @@
-import sys, getopt, shelf
+import sys, getopt, shelf, os, datetime, csv
 def main(argv):
 
 	"""
@@ -46,6 +46,15 @@ def main(argv):
 
 	processShelfList(shelf1)
 
+def writeShelfEndMarker():
+	desktopPath = os.getenv("HOMEDRIVE") + os.getenv("HOMEPATH") + "\\Desktop"
+	csvFileName = desktopPath + "\\inventory.csv"
+
+	with open(csvFileName, 'ab') as csvfile:
+		csvWriter = csv.writer(csvfile)
+		csvWriter.writerow(['endofcase', 'endofcase', 'endofcase', 'endofcase', 'endofcase', 'endofcase'])
+
+
 def processShelfList(shelfList):
 	# extract all books that were found in Google Books
 	found = [book for book in shelfList if book.found == True]
@@ -62,25 +71,69 @@ def processShelfList(shelfList):
 
 	print "------------------------------------------------"
 
-	for book in shelfList:
-		marker = "  " #creates spaces for the left hand first column
-		foundLeft = "" #variable for marking books if they weren't found
-		foundRight = ""
+	# add each book to the inventory.csv file
+	# isbn,author,authorlastname,title,outoforder,date
 
-		if book in OutOfOrder:
-			# print books that are out of order with a * in the first column
-			marker = "* "
-		if book not in found:
-			# print books that weren't found as (ISBN) since no other info is available
-			foundLeft = "("
-			foundRight = ")"
-			book.simpleLastName = book.isbn13
-			book.title = book.isbn13
+	#check to see if inventory.csv exists on the desktop
+	desktopPath = os.getenv("HOMEDRIVE") + os.getenv("HOMEPATH") + "\\Desktop"
+	csvFileName = desktopPath + "\\inventory.csv"
 
-		print marker + foundLeft + book.simpleLastName + ": " + book.title + foundRight
-	
-	print "-REPORT-----------------------------------------"
-	print "  " + str(len(OutOfOrder)) + "  books out of order (marked with an '*')"
+	with open(csvFileName, 'ab') as csvfile:
+		csvWriter = csv.writer(csvfile)
+		# write
+		# beginshelf,beginshelf,beginshelf,beginshelf,beginshelf,beginshelf
+		# to the csv file to mark the start of a shelf
+		csvWriter.writerow(['beginshelf', 'beginshelf', 'beginshelf', 'beginshelf', 'beginshelf', 'beginshelf'])
+
+		for book in shelfList:
+			#create csv string
+			csvRow = []
+
+			marker = "  " #creates spaces for the left hand first column
+			foundLeft = "" #variable for marking books if they weren't found
+			foundRight = ""
+
+			if book in OutOfOrder:
+				# print books that are out of order with a * in the first column
+				marker = "* "
+				csvRow.append(book.isbn13)
+				csvRow.append(book.authors[0])
+				csvRow.append(book.simpleLastName)
+				csvRow.append(book.title)
+				csvRow.append('outoforder')
+				csvRow.append(datetime.datetime.now().strftime("%m/%d/%Y"))
+
+			elif book not in found:
+				# print books that weren't found as (ISBN) since no other info is available
+				foundLeft = "("
+				foundRight = ")"
+				book.simpleLastName = book.isbn13
+				book.title = book.isbn13
+
+				csvRow.append(book.isbn13)
+				csvRow.append('notfound')
+				csvRow.append('notfound')
+				csvRow.append('notfound')
+				csvRow.append('notfound')
+				csvRow.append(datetime.datetime.now().strftime("%m/%d/%Y"))
+			else:
+				#book found, not out of order
+				csvRow.append(book.isbn13)
+				csvRow.append(book.authors[0])
+				csvRow.append(book.simpleLastName)
+				csvRow.append(book.title)
+				csvRow.append('inorder')
+				csvRow.append(datetime.datetime.now().strftime("%m/%d/%Y"))
+
+			print marker + foundLeft + book.simpleLastName + ": " + book.title + foundRight
+			#write line in csv file
+			csvWriter.writerow(csvRow)
+
+		#write endshelf,endshelf,endshelf,endshelf,endshelf,endshelf
+		csvWriter.writerow(['endshelf', 'endshelf', 'endshelf', 'endshelf', 'endshelf', 'endshelf'])
+
+		print "-REPORT-----------------------------------------"
+		print "  " + str(len(OutOfOrder)) + "  books out of order (marked with an '*')"
 
 def interactive():
 	shelfList = []
@@ -92,12 +145,15 @@ def interactive():
 			shelfList = []
 		elif currentValue == "<ENDCASE>":
 			print "Reached End of Case.. processing"
+			#write end of case marker in csv file
 		elif currentValue == "<DELPREV>":
 			try:
 				delb = shelfList.pop()
 				print "Deleting " + delb.title
 			except:
 				print "Cannot Delete!"
+		elif currentValue == "<TEST>":
+			print "Success! The scanner is working"
 		elif currentValue == "q":
 			break
 		elif currentValue == "l" or currentValue == "ls" or currentValue == "L" or currentValue == "LS":
