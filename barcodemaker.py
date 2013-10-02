@@ -8,8 +8,10 @@ def makeBarCode(isbnString):
 	cwd = os.getcwd()
 	imageDir = "barcodeimages"
 
+	# -g wxh (in points)
 	os.system("barcode -b " + isbnString + " -g 90x54 -o temp_" + isbnString + "output.ps")
 	os.system("ps2pdf temp_" + isbnString + "output.ps")
+	#/CropBox [LeftEdge BottomEdge RightEdge TopEdge]   all in points
 	os.system("gswin32c -o temp_" + isbnString + "cropped.pdf -sDEVICE=pdfwrite -c \"[/CropBox [10 0 112 76] /PAGES pdfmark\" -f temp_" + isbnString + "output.pdf")
 	os.system("gswin32c -dNOPAUSE -q -r300 -g430x300 -sDEVICE=tiffg4 -dBATCH -sOutputFile=" + imageDir + "/" + isbnString + ".tif temp_" + isbnString + "cropped.pdf")
 	os.system("del temp_" + isbnString + "*")

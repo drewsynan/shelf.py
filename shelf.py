@@ -10,9 +10,13 @@ class book:
 		Initialize a book with the ISBN (can be 10 or 13, but can't have dashes)
 		Use setApiKey(string) to override the default Google Books API key
 		"""
+		self.isnbSearch = ISBN
 
 		self.isbn13 = ISBN
-		self.googleApiKey = "AIzaSyCSH18cCHo6ggNg-XYkrt10GMk3fkFSuhw"
+		self.isbn10 = ""
+		
+		#self.googleApiKey = "AIzaSyCSH18cCHo6ggNg-XYkrt10GMk3fkFSuhw"
+		self.googleApiKey = "AIzaSyAaVCpblCix3LOOu0HtpdG-MXXam5criSI" #alternate key
 		self.authors = [""]
 		self.__getGoogleBookInfo()
 		self.__setNameStrings()
@@ -131,6 +135,9 @@ class book:
 			self.simpleTitle = simpleTitle
 		else:
 			#if book was not found in Google Books, do nothing
+			self.simpleFirstName = ""
+			self.simpleLastName = ""
+			self.simpleTitle = ""
 			pass
 
 	def __eq__(self, other):
