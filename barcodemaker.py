@@ -10,8 +10,8 @@ def makeBarCode(isbnString):
 
 	os.system("barcode -b " + isbnString + " -g 90x54 -o temp_" + isbnString + "output.ps")
 	os.system("ps2pdf temp_" + isbnString + "output.ps")
-	os.system("gswin32c -o temp_" + isbnString + "cropped.pdf -sDEVICE=pdfwrite -c \"[/CropBox [4 0 112 76] /PAGES pdfmark\" -f temp_" + isbnString + "output.pdf")
-	os.system("gswin32c -dNOPAUSE -q -r300 -g445x300 -sDEVICE=tiffg4 -dBATCH -sOutputFile=" + imageDir + "/" + isbnString + ".tif temp_" + isbnString + "cropped.pdf")
+	os.system("gswin32c -o temp_" + isbnString + "cropped.pdf -sDEVICE=pdfwrite -c \"[/CropBox [10 0 112 76] /PAGES pdfmark\" -f temp_" + isbnString + "output.pdf")
+	os.system("gswin32c -dNOPAUSE -q -r300 -g430x300 -sDEVICE=tiffg4 -dBATCH -sOutputFile=" + imageDir + "/" + isbnString + ".tif temp_" + isbnString + "cropped.pdf")
 	os.system("del temp_" + isbnString + "*")
 
 	imageFileName = cwd + "\\" + imageDir + "\\" + isbnString + ".tif"
@@ -29,8 +29,8 @@ def csvReader(csvFile):
 
 def process(inputFile, outputFile):
 
-	pathToBarcode = "C:\\Users\\dsynan\\Desktop\\bin"
-	pathToGhostScript = "C:\\Users\\dsynan\\Desktop\\PA\\PortableApps\\Ghostscript"
+	pathToBarcode = "C:\\Users\\dsynan\\Documents\\gnu-barcode-bin"
+	pathToGhostScript = "C:\\Users\\dsynan\\Documents\\PortableApps\\CommonFiles\\Ghostscript"
 
 	startingPath = os.environ["PATH"]
 	newPath = startingPath + ";" + pathToBarcode + ";" + pathToGhostScript + "\\bin;" + pathToGhostScript + "\\lib"
@@ -53,12 +53,16 @@ def process(inputFile, outputFile):
 	for book in books:
 		row = []
 		row.append(book.isbn13)
-		row.append(book.authors[0])
+		if book.found:
+			#row.append(book.authors[0])
+			row.append(book.simpleLastName)
+		else:
+			row.append("")
 		row.append(book.title)
 		row.append(makeBarCode(book.isbn13))
 		with open(outputFile, 'ab') as csvfile:
 			csvWriter = csv.writer(csvfile)
-			csvWriter.writerow(row)
+			csvWriter.writerow([s.encode("utf-8") for s in row])
 
 if __name__ == "__main__":
 	if len(sys.argv) >= 3:

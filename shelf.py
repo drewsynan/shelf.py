@@ -13,6 +13,7 @@ class book:
 
 		self.isbn13 = ISBN
 		self.googleApiKey = "AIzaSyCSH18cCHo6ggNg-XYkrt10GMk3fkFSuhw"
+		self.authors = [""]
 		self.__getGoogleBookInfo()
 		self.__setNameStrings()
 
@@ -29,7 +30,7 @@ class book:
 
 		baseURL = "https://www.googleapis.com/books/v1/volumes?q=isbn:" #Google Books API v 1 base url
 		addOn = "&key=" #needed for GET request
-		jsonURL = baseURL + str(self.isbn13) + addOn + self.googleApiKey #build a URL string for searching
+		jsonURL = baseURL + str(self.isbn13) + addOn + self.googleApiKey + "&country=US" #build a URL string for searching
 
 		print "  Looking up book " + str(self.isbn13) + "...", #log the search to the console
 
@@ -40,7 +41,11 @@ class book:
 
 			firstVolume = googleBook['items'][0]['volumeInfo'] #get the first volume object from the processed JSON
 			self.title = firstVolume['title'] #get the title
-			self.authors = firstVolume['authors'] #get the array of authors
+
+			if 'authors' in firstVolume.keys():
+				self.authors = firstVolume['authors'] #get the array of authors
+			else:
+				self.authors = [""]
 
 			print "   [OK]" #log that the book was found to the console
 		else:
@@ -68,7 +73,7 @@ class book:
 		simpleTitle = ""
 
 		#check to see if book was found and has info from Google Books
-		if self.found: 
+		if self.found and self.authors != [""]: 
 			#Get the name of the first author (the first item in the author array)
 			firstAuthorName = self.authors[0].upper().split()
 
