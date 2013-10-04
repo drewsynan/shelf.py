@@ -52,8 +52,17 @@ def writeShelfEndMarker():
 
 	with open(csvFileName, 'ab') as csvfile:
 		csvWriter = csv.writer(csvfile)
-		csvWriter.writerow(['endofcase', 'endofcase', 'endofcase', 'endofcase', 'endofcase', 'endofcase'])
+		endCaseRow = ['endofcase', 'endofcase', 'endofcase', 'endofcase', 'endofcase', 'endofcase']
+		csvWriter.writerow([s.encode("utf-8") for s in beginCaseRow])
 
+def processBarcodeList(barcodeList):
+	desktopPath = os.getenv("HOMEDRIVE") + os.getenv("HOMEPATH") + "\\Desktop"
+	csvFileName = desktopPath + "\\inventory_barcodelist.csv"
+
+	with open(csvFileName, 'ab') as csvfile:
+		csvWriter = csv.writer(csvfile)
+		for barcode in barcodeList:
+			csvWriter.writerow([barcodeList[0].isbn13,datetime.datetime.now().strftime("%m/%d/%Y")])
 
 def processShelfList(shelfList):
 	# extract all books that were found in Google Books
@@ -83,7 +92,8 @@ def processShelfList(shelfList):
 		# write
 		# beginshelf,beginshelf,beginshelf,beginshelf,beginshelf,beginshelf
 		# to the csv file to mark the start of a shelf
-		csvWriter.writerow(['beginshelf', 'beginshelf', 'beginshelf', 'beginshelf', 'beginshelf', 'beginshelf'])
+		beginShelfRow = ['beginshelf', 'beginshelf', 'beginshelf', 'beginshelf', 'beginshelf', 'beginshelf']
+		csvWriter.writerow([s.encode("utf-8") for s in beginShelfRow])
 
 		for book in shelfList:
 			#create csv string
@@ -107,13 +117,18 @@ def processShelfList(shelfList):
 				# print books that weren't found as (ISBN) since no other info is available
 				foundLeft = "("
 				foundRight = ")"
-				book.simpleLastName = book.isbn13
-				book.title = book.isbn13
+				if book.simpleLastName == "":
+					book.simpleLastName = book.isbn13
+				if book.title == "":
+					book.title = book.isbn13
+				if book.authors == [""]:
+					book.author = "notfound"
+					book.simpleLastName = "notfound"
 
 				csvRow.append(book.isbn13)
-				csvRow.append('notfound')
-				csvRow.append('notfound')
-				csvRow.append('notfound')
+				csvRow.append(book.authors[0])
+				csvRow.append(book.simpleLastName)
+				csvRow.append(book.title)
 				csvRow.append('notfound')
 				csvRow.append(datetime.datetime.now().strftime("%m/%d/%Y"))
 			else:
@@ -127,22 +142,30 @@ def processShelfList(shelfList):
 
 			print marker + foundLeft + book.simpleLastName + ": " + book.title + foundRight
 			#write line in csv file
-			csvWriter.writerow(csvRow)
+			csvWriter.writerow([s.encode("utf-8") for s in csvRow])
 
 		#write endshelf,endshelf,endshelf,endshelf,endshelf,endshelf
-		csvWriter.writerow(['endshelf', 'endshelf', 'endshelf', 'endshelf', 'endshelf', 'endshelf'])
+		endShelfRow = ['endshelf', 'endshelf', 'endshelf', 'endshelf', 'endshelf', 'endshelf']
+		csvWriter.writerow([s.encode("utf-8") for s in endShelfRow])
 
 		print "-REPORT-----------------------------------------"
-		print "  " + str(len(OutOfOrder)) + "  books out of order (marked with an '*')"
+		print "  " + str(len(OutOfOrder)) + "  books out of order (marked with an '*')   ( ) = not found"
 
 def interactive():
 	shelfList = []
+	barcodeList = []
+
+	infoPrompting = False;
+
 	while True:
 		currentValue = raw_input('ISBN> ')
 		if currentValue == "<ENDSHELF>":
 			print "Reached End of shelf... processing"
 			processShelfList(shelfList)
+			processBarcodeList(barcodeList)
+
 			shelfList = []
+			barcodeList = []
 		elif currentValue == "<ENDCASE>":
 			print "Reached End of Case.. processing"
 			#write end of case marker in csv file
@@ -154,7 +177,31 @@ def interactive():
 				print "Cannot Delete!"
 		elif currentValue == "<TEST>":
 			print "Success! The scanner is working"
-		elif currentValue == "q":
+		elif currentValue == "b" or currentValue == "B":
+			print "      Type barcode (a label will be generated later), or c to cancel"
+			neededBarcode = raw_input('----> ')
+			cleaned = neededBarcode.replace("-","")
+			if cleaned == "c" or cleaned == "C":
+				pass
+			elif cleaned == "q" or cleaned =="Q":
+				break
+			else:
+				b = shelf.book(cleaned)
+				if b.found:
+					print b.title
+				else:
+					print "BOOK NOT FOUND: enter book information"
+					newTitle = raw_input("Title: ")
+					newAuthorLname = raw_input("Author last name: ")
+					newAuthorFname = raw_input("Author first name: ")
+					b.simpleLastName = newAuthorLname.upper().replace(" ","")
+					b.title = newTitle
+					combinedAuthor = newAuthorFname + ' ' + newAuthorLname
+					b.authors = [combinedAuthor]
+				shelfList.append(b)
+				barcodeList.append(b)
+		elif currentValue == "q" or currentValue == "Q":
+			# Need to create some sort of confirmation to quit without saving, or save and quit
 			break
 		elif currentValue == "l" or currentValue == "ls" or currentValue == "L" or currentValue == "LS":
 			print "Items Scanned for this Shelf"
@@ -163,17 +210,36 @@ def interactive():
 				print book.simpleLastName + ": " + book.title
 			print "----------------------------"
 			print "scan or type <ENDOFSHELF> for shelf reading report"
+		elif currentValue == "p" or currentValue == "P":
+			infoPrompting = not infoPrompting
+			if infoPrompting:
+				print "Info prompting enabled"
+			else:
+				print "Info prompting disabled"
 		else:
 			clean = currentValue.replace("-","")
 			cb = shelf.book(clean)
-			print cb.title
+			if cb.found:
+				print cb.title
+			else:
+				if infoPrompting:
+					print "BOOK NOT FOUND: enter book information"
+					newTitle = raw_input("Title: ")
+					newAuthorLname = raw_input("Author last name: ")
+					newAuthorFname = raw_input("Author first name: ")
+					cb.simpleLastName = newAuthorLname.upper().replace(" ","")
+					cb.title = newTitle
+					combinedAuthor = newAuthorFname + ' ' + newAuthorLname
+					cb.authors = [combinedAuthor]
 			shelfList.append(cb)
 
 
 
 if __name__ == "__main__":
 	if len(sys.argv) == 1:
-		print "INTERACTIVE / begin scanning books; type q to quit"
+		print "Interactive Inventory"
+		print "type q to quit | b to enter a barcodeless book | p to enable info prompting | ls to see shelf list so far"
+		print "Begin scanning books."
 		interactive()
 	elif len(sys.argv) == 2 and sys.argv[1] == "demo":
 		print sys.argv
