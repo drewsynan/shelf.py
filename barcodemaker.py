@@ -48,7 +48,7 @@ def process(inputFile, outputFile):
 	#write header
 	with open(outputFile, 'wb') as csvfile:
 		csvWriter = csv.writer(csvfile)
-		csvWriter.writerow(['isbn', 'author', 'title', 'isbn_filename'])
+		csvWriter.writerow(['isbn', 'author', 'title', 'isbn_filename','book_found'])
 
 	#write results to csv file
 	#isbn,author,title,isbn_filename
@@ -62,6 +62,7 @@ def process(inputFile, outputFile):
 			row.append("")
 		row.append(book.title)
 		row.append(makeBarCode(book.isbn13))
+		row.append(str(book.found))
 		with open(outputFile, 'ab') as csvfile:
 			csvWriter = csv.writer(csvfile)
 			csvWriter.writerow([s.encode("utf-8") for s in row])
