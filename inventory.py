@@ -219,13 +219,13 @@ def interactive():
 				print "Cannot Delete!"
 		elif currentValue == "<TEST>":
 			print "Success! The scanner is working"
-		elif currentValue == "b" or currentValue == "B":
+		elif currentValue.upper() == "B":
 			print "      Type barcode (a label will be generated later), or c to cancel"
 			neededBarcode = raw_input('----> ')
 			cleaned = neededBarcode.replace("-","")
-			if cleaned == "c" or cleaned == "C":
+			if cleaned.upper() == "C":
 				pass
-			elif cleaned == "q" or cleaned =="Q":
+			elif cleaned.upper() == "Q":
 				break
 			else:
 				b = shelf.book(cleaned)
@@ -242,12 +242,12 @@ def interactive():
 					b.authors = [combinedAuthor]
 				shelfList.append(b)
 				barcodeList.append(b)
-		elif currentValue == "q" or currentValue == "Q":
+		elif currentValue.upper() == "Q":
 			if shelfList:
 				print "WARNING: Shelf List Not committed"
 				print "         Commit list before quitting?"
 				choice = raw_input("Y/N? ")
-				if choice == "Y" or choice == "y":
+				if choice.upper() == "Y":
 					processShelfList(shelfList)
 					processBarcodeList(barcodeList)
 					break
@@ -255,7 +255,7 @@ def interactive():
 					break
 			else:
 				break
-		elif currentValue == "l" or currentValue == "ls" or currentValue == "L" or currentValue == "LS":
+		elif currentValue.upper() == "L" or currentValue.upper() == "LS":
 			print "Items Scanned for this Shelf"
 			print "----------------------------"
 			for book in shelfList:
@@ -268,7 +268,7 @@ def interactive():
 				print "Info prompting enabled"
 			else:
 				print "Info prompting disabled"
-		elif currentValue == "i" or currentValue == "I":
+		elif currentValue.upper() == "I":
 			interactiveShelfReport = not interactiveShelfReport
 			if interactiveShelfReport:
 				print "Interactive shelf reading report enabled"
