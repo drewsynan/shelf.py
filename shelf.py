@@ -6,13 +6,16 @@ class book:
 	"""
 
 	def __init__(self, ISBN):
+		import datetime
+
 		"""
 		Initialize a book with the ISBN (can be 10 or 13, but can't have dashes)
 		Use setApiKey(string) to override the default Google Books API key
 		"""
-		self.isnbSearch = ISBN
+		self.timeStamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+		self.isbnSearch = ISBN
 
-		self.isbn13 = ISBN
+		self.isbn13 = ""
 		self.isbn10 = ""
 		
 		#self.googleApiKey = "AIzaSyCSH18cCHo6ggNg-XYkrt10GMk3fkFSuhw"
@@ -34,31 +37,47 @@ class book:
 
 		baseURL = "https://www.googleapis.com/books/v1/volumes?q=isbn:" #Google Books API v 1 base url
 		addOn = "&key=" #needed for GET request
-		jsonURL = baseURL + str(self.isbn13) + addOn + self.googleApiKey + "&country=US" #build a URL string for searching
+		jsonURL = baseURL + str(self.isbnSearch) + addOn + self.googleApiKey + "&country=US" #build a URL string for searching
 
-		print "  Looking up book " + str(self.isbn13) + "...", #log the search to the console
+		print "  Looking up book " + str(self.isbnSearch) + "...", #log the search to the console
+		try:
+			googleBook = json.load(urllib2.urlopen(jsonURL)) #attempt to load JSON from Google Books using the URL built above
 
-		googleBook = json.load(urllib2.urlopen(jsonURL)) #attempt to load JSON from Google Books using the URL built above
+			self.jsonError = False
 
-		if googleBook['totalItems'] > 0: #see if any items were returns from search
-			self.found = True
+			if googleBook['totalItems'] > 0: #see if any items were returns from search
+				self.found = True
 
-			firstVolume = googleBook['items'][0]['volumeInfo'] #get the first volume object from the processed JSON
-			self.title = firstVolume['title'] #get the title
+				firstVolume = googleBook['items'][0]['volumeInfo'] #get the first volume object from the processed JSON
+				self.title = firstVolume['title'] #get the title
 
-			if 'authors' in firstVolume.keys():
-				self.authors = firstVolume['authors'] #get the array of authors
+				idents = firstVolume['industryIdentifiers']
+				for ident in idents:
+					if ident['type'] == 'ISBN_10':
+						self.isbn10 = ident['identifier']
+					elif ident['type'] == 'ISBN_13':
+						self.isbn13 = ident['identifier']
+
+				if 'authors' in firstVolume.keys():
+					self.authors = firstVolume['authors'] #get the array of authors
+				else:
+					self.authors = [""]
+
+				print "   [OK]" #log that the book was found to the console
 			else:
+				#no items were found
+				self.found = False
+				self.title = ""
 				self.authors = [""]
 
-			print "   [OK]" #log that the book was found to the console
-		else:
-			#no items were found
+				print "   [!]" #log to the console that the book was not found
+		except:
+			#google books as probably thrown an API error
 			self.found = False
 			self.title = ""
 			self.authors = [""]
-
-			print "   [!]" #log to the console that the book was not found
+			self.jsonError = True
+			print "   [HTTP ERROR]"
 
 	def __setNameStrings(self):
 

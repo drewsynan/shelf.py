@@ -46,23 +46,17 @@ def main(argv):
 
 	processShelfList(shelf1)
 
-def writeShelfEndMarker():
-	desktopPath = os.getenv("HOMEDRIVE") + os.getenv("HOMEPATH") + "\\Desktop"
-	csvFileName = desktopPath + "\\inventory.csv"
-
+def writeCaseEndMarker():
 	with open(csvFileName, 'ab') as csvfile:
 		csvWriter = csv.writer(csvfile)
-		endCaseRow = ['endofcase', 'endofcase', 'endofcase', 'endofcase', 'endofcase', 'endofcase']
-		csvWriter.writerow([s.encode("utf-8") for s in beginCaseRow])
+		endCaseRow = ['endofcase', 'endofcase', 'endofcase', 'endofcase', 'endofcase', 'endofcase', 'endofcase', 'endofcase','endofcase']
+		csvWriter.writerow([s.encode("utf-8") for s in endCaseRow])
 
 def processBarcodeList(barcodeList):
-	desktopPath = os.getenv("HOMEDRIVE") + os.getenv("HOMEPATH") + "\\Desktop"
-	csvFileName = desktopPath + "\\inventory_barcodelist.csv"
-
-	with open(csvFileName, 'ab') as csvfile:
+	with open(csvBarcodeFileName, 'ab') as csvfile:
 		csvWriter = csv.writer(csvfile)
 		for barcode in barcodeList:
-			csvWriter.writerow([barcodeList[0].isbn13,datetime.datetime.now().strftime("%m/%d/%Y")])
+			csvWriter.writerow([barcodeList[0].isbn13,datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")])
 
 def processShelfList(shelfList):
 	# extract all books that were found in Google Books
@@ -81,19 +75,26 @@ def processShelfList(shelfList):
 	print "------------------------------------------------"
 
 	# add each book to the inventory.csv file
-	# isbn,author,authorlastname,title,outoforder,date
+	# isbnSearch,isbn13,isbn10,author,authorlastname,title,outoforder,date,jsonError
 
 	#check to see if inventory.csv exists on the desktop
-	desktopPath = os.getenv("HOMEDRIVE") + os.getenv("HOMEPATH") + "\\Desktop"
-	csvFileName = desktopPath + "\\inventory.csv"
+	if not os.path.isfile(csvFileName):
+		writeHeader = True
+	else:
+		writeHeader = False
 
 	with open(csvFileName, 'ab') as csvfile:
 		csvWriter = csv.writer(csvfile)
 		# write
 		# beginshelf,beginshelf,beginshelf,beginshelf,beginshelf,beginshelf
 		# to the csv file to mark the start of a shelf
-		beginShelfRow = ['beginshelf', 'beginshelf', 'beginshelf', 'beginshelf', 'beginshelf', 'beginshelf']
-		csvWriter.writerow([s.encode("utf-8") for s in beginShelfRow])
+		
+		# write beginshelf markers... should be moved into a function by itself
+		# beginShelfRow = ['beginshelf', 'beginshelf', 'beginshelf', 'beginshelf', 'beginshelf', 'beginshelf', 'beginshelf', 'beginshelf','beginshelf']
+		# csvWriter.writerow([s.encode("utf-8") for s in beginShelfRow])
+
+		if writeHeader:
+			csvWriter.writerow(['searchIsbn', 'isbn13', 'isbn10', 'author', 'authorlastname', 'title', 'outoforder', 'date', 'jsonError'])
 
 		for book in shelfList:
 			#create csv string
@@ -106,69 +107,106 @@ def processShelfList(shelfList):
 			if book in OutOfOrder:
 				# print books that are out of order with a * in the first column
 				marker = "* "
+				csvRow.append(book.isbnSearch)
 				csvRow.append(book.isbn13)
+				csvRow.append(book.isbn10)
 				csvRow.append(book.authors[0])
 				csvRow.append(book.simpleLastName)
 				csvRow.append(book.title)
 				csvRow.append('outoforder')
-				csvRow.append(datetime.datetime.now().strftime("%m/%d/%Y"))
+				csvRow.append(book.timeStamp)
+				csvRow.append(str(book.jsonError))
 
 			elif book not in found:
 				# print books that weren't found as (ISBN) since no other info is available
 				foundLeft = "("
 				foundRight = ")"
 				if book.simpleLastName == "":
-					book.simpleLastName = book.isbn13
+					book.simpleLastName = book.isbnSearch
 				if book.title == "":
-					book.title = book.isbn13
+					book.title = book.isbnSearch
 				if book.authors == [""]:
 					book.author = "notfound"
 					book.simpleLastName = "notfound"
 
+				csvRow.append(book.isbnSearch)
 				csvRow.append(book.isbn13)
+				csvRow.append(book.isbn10)
 				csvRow.append(book.authors[0])
 				csvRow.append(book.simpleLastName)
 				csvRow.append(book.title)
 				csvRow.append('notfound')
-				csvRow.append(datetime.datetime.now().strftime("%m/%d/%Y"))
+				csvRow.append(book.timeStamp)
+				csvRow.append(str(book.jsonError))
 			else:
 				#book found, not out of order
+				csvRow.append(book.isbnSearch)
 				csvRow.append(book.isbn13)
+				csvRow.append(book.isbn10)
 				csvRow.append(book.authors[0])
 				csvRow.append(book.simpleLastName)
 				csvRow.append(book.title)
 				csvRow.append('inorder')
-				csvRow.append(datetime.datetime.now().strftime("%m/%d/%Y"))
+				csvRow.append(book.timeStamp)
+				csvRow.append(str(book.jsonError))
 
-			print marker + foundLeft + book.simpleLastName + ": " + book.title + foundRight
+			if interactiveShelfReport:
+				print marker + foundLeft + book.simpleLastName + ": " + book.title + foundRight
 			#write line in csv file
 			csvWriter.writerow([s.encode("utf-8") for s in csvRow])
 
 		#write endshelf,endshelf,endshelf,endshelf,endshelf,endshelf
-		endShelfRow = ['endshelf', 'endshelf', 'endshelf', 'endshelf', 'endshelf', 'endshelf']
+		endShelfRow = ['endshelf', 'endshelf', 'endshelf', 'endshelf', 'endshelf', 'endshelf', 'endshelf', 'endshelf', 'endshelf']
 		csvWriter.writerow([s.encode("utf-8") for s in endShelfRow])
 
-		print "-REPORT-----------------------------------------"
-		print "  " + str(len(OutOfOrder)) + "  books out of order (marked with an '*')   ( ) = not found"
+		if interactiveShelfReport:
+			print "-REPORT-----------------------------------------"
+			print "  " + str(len(OutOfOrder)) + "  books out of order (marked with an '*')   ( ) = not found"
 
 def interactive():
 	shelfList = []
 	barcodeList = []
 
-	infoPrompting = False;
+	global infoPrompting
+	global interactiveShelfReport
+
+	global desktopPath
+	global csvFileName
+	global csvBarcodeFileName
+
+	infoPrompting = False
+	interactiveShelfReport = False
+
+	desktopPath = os.getenv("HOMEDRIVE") + os.getenv("HOMEPATH") + "\\Desktop"
+	csvFileName = desktopPath + "\\inventory.csv"
+	csvBarcodeFileName = desktopPath + "\\inventory_barcodelist.csv"
+
+
 
 	while True:
 		currentValue = raw_input('ISBN> ')
 		if currentValue == "<ENDSHELF>":
 			print "Reached End of shelf... processing"
-			processShelfList(shelfList)
-			processBarcodeList(barcodeList)
+			try:
+				processShelfList(shelfList)
+				processBarcodeList(barcodeList)
 
-			shelfList = []
-			barcodeList = []
+				shelfList = []
+				barcodeList = []
+			except IOError as e:
+				print "I/O Exception. Is the inventory file currently open?"
+			except:
+				raise
 		elif currentValue == "<ENDCASE>":
 			print "Reached End of Case.. processing"
 			#write end of case marker in csv file
+			if shelfList != []:
+				processShelfList(shelfList)
+				processBarcodeList(barcodeList)
+				writeCaseEndMarker()
+			else:
+				writeCaseEndMarker()
+
 		elif currentValue == "<DELPREV>":
 			try:
 				delb = shelfList.pop()
@@ -201,21 +239,37 @@ def interactive():
 				shelfList.append(b)
 				barcodeList.append(b)
 		elif currentValue == "q" or currentValue == "Q":
-			# Need to create some sort of confirmation to quit without saving, or save and quit
-			break
+			if shelfList:
+				print "WARNING: Shelf List Not committed"
+				print "         Commit list before quitting?"
+				choice = raw_input("Y/N? ")
+				if choice == "Y" or choice == "y":
+					processShelfList(shelfList)
+					processBarcodeList(barcodeList)
+					break
+				else:
+					break
+			else:
+				break
 		elif currentValue == "l" or currentValue == "ls" or currentValue == "L" or currentValue == "LS":
 			print "Items Scanned for this Shelf"
 			print "----------------------------"
 			for book in shelfList:
 				print book.simpleLastName + ": " + book.title
 			print "----------------------------"
-			print "scan or type <ENDOFSHELF> for shelf reading report"
+			print "scan or type <ENDSHELF> for shelf reading report"
 		elif currentValue == "p" or currentValue == "P":
 			infoPrompting = not infoPrompting
 			if infoPrompting:
 				print "Info prompting enabled"
 			else:
 				print "Info prompting disabled"
+		elif currentValue == "i" or currentValue == "I":
+			interactiveShelfReport = not interactiveShelfReport
+			if interactiveShelfReport:
+				print "Interactive shelf reading report enabled"
+			else:
+				print "interactive shelf reading report disabled"
 		else:
 			clean = currentValue.replace("-","")
 			cb = shelf.book(clean)
@@ -238,13 +292,22 @@ def interactive():
 if __name__ == "__main__":
 	if len(sys.argv) == 1:
 		print "Interactive Inventory"
-		print "type q to quit | b to enter a barcodeless book | p to enable info prompting | ls to see shelf list so far"
+		print "type q to quit"
+		print "     b to enter a barcodeless book"
+		print "     p to enable info prompting"
+		print "     i to enable interactive shelf report"
+		print "     ls to see shelf list so far"
 		print "Begin scanning books."
 		interactive()
 	elif len(sys.argv) == 2 and sys.argv[1] == "demo":
 		print sys.argv
+		desktopPath = os.getenv("HOMEDRIVE") + os.getenv("HOMEPATH") + "\\Desktop"
+		csvFileName = desktopPath + "\\inventory_demo.csv"
+		global interactiveShelfReport
+		interactiveShelfReport = True
 		print "Internal Data Demo"
 		main([])
 	else:
 		print "CSV processing"
-		main(sys.argv[1:])
+		print sys.argv[1:]
+		#main(sys.argv[1:])
