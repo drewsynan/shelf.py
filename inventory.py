@@ -32,6 +32,7 @@ def main(argv):
 			outputfile = arg
 			printtoscreen = False
 
+	#### INTERNAL DEMO ######
 	book = shelf.book
 	#populate a test array of book objects
 	shelf1 = [book("9780226922843"), book("9780226699080"), book("9780226701011"), 
@@ -53,10 +54,13 @@ def writeCaseEndMarker():
 		csvWriter.writerow([s.encode("utf-8") for s in endCaseRow])
 
 def processBarcodeList(barcodeList):
-	with open(csvBarcodeFileName, 'ab') as csvfile:
-		csvWriter = csv.writer(csvfile)
-		for barcode in barcodeList:
-			csvWriter.writerow([barcodeList[0].isbn13,datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")])
+	if barcodeList:
+		with open(csvBarcodeFileName, 'ab') as csvfile:
+			csvWriter = csv.writer(csvfile)
+			for barcode in barcodeList:
+				csvWriter.writerow([barcodeList[0].isbn13,datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")])
+	else:
+		pass
 
 def processShelfList(shelfList):
 	# extract all books that were found in Google Books
@@ -200,7 +204,7 @@ def interactive():
 		elif currentValue == "<ENDCASE>":
 			print "Reached End of Case.. processing"
 			#write end of case marker in csv file
-			if shelfList != []:
+			if shelfList:
 				processShelfList(shelfList)
 				processBarcodeList(barcodeList)
 				writeCaseEndMarker()
