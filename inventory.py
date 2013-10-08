@@ -19,7 +19,7 @@ def main(argv):
 	try:
 		opts, args = getopt.getopt(argv,"hi:o",["ifile=","ofile="])
 	except getopt.GetoptError:
-		print 'shelfreader.py -i <inputfile> -o <outputfile>'
+		print 'inventory.py -i <inputfile> -o <outputfile>'
 		sys.exit(2)
 
 	for opt, arg in opts:
@@ -32,6 +32,7 @@ def main(argv):
 			outputfile = arg
 			printtoscreen = False
 
+def demo():
 	#### INTERNAL DEMO ######
 	book = shelf.book
 	#populate a test array of book objects
@@ -46,6 +47,50 @@ def main(argv):
 			  book("9780226702681")]
 
 	processShelfList(shelf1)
+
+def csvInventory(inventoryFile):
+
+	shelfList = []
+	global infoPrompting
+	global interactiveShelfReport
+	global desktopPath
+	global csvFileName
+
+	infoPrompting = False
+	interactiveShelfReport = False
+	desktopPath = os.getenv("HOMEDRIVE") + os.getenv("HOMEPATH") + "\\Desktop"
+	csvFileName = desktopPath + "\\inventory_batch.csv"
+
+	with open(inventoryFile, 'rb') as csvfile:
+		reader = csv.reader(csvfile)
+		for row in reader:
+			if row[0] == "<ENDSHELF>":
+				try:
+					processShelfList(shelfList)
+
+					shelfList = []
+					barcodeList = []
+				except:
+					raise
+			elif row[0] == "<ENDCASE>":
+				if shelfList:
+					processShelfList(shelfList)
+					processBarcodeList(barcodeList)
+					writeCaseEndMarker()
+				else:
+					writeCaseEndMarker()
+			elif row[0] == "<DELPREV>":
+				try:
+					delb = shelfList.pop()
+				except:
+					pass
+			else:
+				clean = row[0].replace("-","")
+				cb = shelf.book(clean)
+				shelfList.append(cb)
+	#check to see if there are any books left on the list (maybe no ending endshelf tag)
+	if shelfList:
+		processShelfList(shelfList)
 
 def writeCaseEndMarker():
 	with open(csvFileName, 'ab') as csvfile:
@@ -262,7 +307,7 @@ def interactive():
 				print book.simpleLastName + ": " + book.title
 			print "----------------------------"
 			print "scan or type <ENDSHELF> for shelf reading report"
-		elif currentValue == "p" or currentValue == "P":
+		elif currentValue.upper() == "P":
 			infoPrompting = not infoPrompting
 			if infoPrompting:
 				print "Info prompting enabled"
@@ -310,8 +355,9 @@ if __name__ == "__main__":
 		global interactiveShelfReport
 		interactiveShelfReport = True
 		print "Internal Data Demo"
-		main([])
+		demo()
 	else:
 		print "CSV processing"
 		print sys.argv[1:]
+		csvInventory(sys.argv[1])
 		#main(sys.argv[1:])
