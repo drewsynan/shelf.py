@@ -16,10 +16,10 @@ class book:
 		self.isbnSearch = ISBN
 
 		#create new searcher
-		#import google
-		#mySearcher = google.googleSearcher()
-		import z3950
-		mySearcher = z3950.z3950Searcher()
+		import google
+		mySearcher = google.googleSearcher()
+		#import z3950
+		#mySearcher = z3950.z3950Searcher()
 
 		bookInfo = mySearcher.search(self.isbnSearch)
 

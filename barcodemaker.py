@@ -54,7 +54,7 @@ def process(inputFile, outputFile):
 	#isbn,author,title,isbn_filename
 	for book in books:
 		row = []
-		row.append(book.isbn13)
+		row.append(book.isbnSearch)
 		if book.found:
 			#row.append(book.authors[0])
 			row.append(book.simpleLastName)
