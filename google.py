@@ -1,8 +1,8 @@
 class googleSearcher:
 
 	def __init__(self):
-		#self.googleApiKey = "AIzaSyCSH18cCHo6ggNg-XYkrt10GMk3fkFSuhw"
-		self.googleApiKey = "AIzaSyAaVCpblCix3LOOu0HtpdG-MXXam5criSI" #alternate key
+		self.googleApiKey = "AIzaSyCSH18cCHo6ggNg-XYkrt10GMk3fkFSuhw"
+		#self.googleApiKey = "AIzaSyAaVCpblCix3LOOu0HtpdG-MXXam5criSI" #alternate key
 
 	def setApiKey(self, key):
 		"""Setter to make the Google Books search API key to something other than the default"""
@@ -97,7 +97,7 @@ class googleSearcher:
 		#check to see if book was found and has info from Google Books
 		if lookupDict['found'] and lookupDict['authors'] != [""]: 
 			#Get the name of the first author (the first item in the author array)
-			firstAuthorName = lookupDict['authors'][0].upper().split()
+			firstAuthorName = lookupDict['authors'][0].upper().split(",")[0].split() #get rid of JR or SR if it exists and then split by word
 
 			#the code below extracts the author's last name
 
